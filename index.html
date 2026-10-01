@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniPrep OS - Official VTU & Autonomous AI Exam Prep Platform</title>
+
+    <!-- Tailwind CSS v3 via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js & Canvas Confetti JS Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#0b1120',
+                            950: '#020617',
+                        },
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.06); }
+        }
+        .pulse-active { animation: pulseGlow 2s infinite ease-in-out; }
+
+        @keyframes alarmFlash {
+            0%, 100% { border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 0 0px rgba(244, 63, 94, 0); }
+            50% { border-color: rgba(244, 63, 94, 1); box-shadow: 0 0 25px rgba(244, 63, 94, 0.4); }
+        }
+        .alarm-border-active { animation: alarmFlash 1.5s infinite ease-in-out; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            
+            <!-- Brand Logo & Context -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('dashboard')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-black tracking-tight text-white">CogniPrep<span class="text-brand-400">OS</span></span>
+                        <span id="scheme-badge" class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-brand-500/10 text-brand-400 border border-brand-500/20 rounded-md">
+                            VTU 2022/2025 CBCS
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-slate-400">
+                        <span id="header-active-context-pill" class="flex items-center gap-1.5 text-emerald-400 font-medium">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-active"></span>
+                            <span id="active-exam-label">CSE • Sem 3 • 22CS32 Data Structures</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Bar -->
+            <nav class="hidden xl:flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 text-xs font-semibold">
+                <button onclick="switchView('dashboard')" id="nav-btn-dashboard" class="nav-tab-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all bg-brand-600 text-white shadow-sm">
+                    <i class="fa-solid fa-chart-line text-xs"></i> Dashboard
+                </button>
+                <button onclick="switchView('vtu-syllabus')" id="nav-btn-vtu-syllabus" class="nav-tab-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-cubes text-xs"></i> 5-Module Syllabus
+                </button>
+                <button onclick="switchView('web-verifier')" id="nav-btn-web-verifier" class="nav-tab-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-globe text-xs text-cyan-400"></i> VTU Web Scraper
+                </button>
+                <button onclick="switchView('tutor')" id="nav-btn-tutor" class="nav-tab-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-robot text-xs"></i> Socratic AI Tutor
+                </button>
+                <button onclick="switchView('quiz')" id="nav-btn-quiz" class="nav-tab-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-vial text-xs"></i> Quiz Engine
+                </button>
+                <button onclick="switchView('planner')" id="nav-btn-planner" class="nav-tab-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-calendar-days text-xs"></i> Planner
+                </button>
+                <button onclick="switchView('sms-logs')" id="nav-btn-sms-logs" class="nav-tab-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20">
+                    <i class="fa-solid fa-tower-cell text-xs"></i> Mobile Alerts
+                </button>
+                <button onclick="switchView('rag')" id="nav-btn-rag" class="nav-tab-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-file-arrow-up text-xs"></i> RAG Notes
+                </button>
+                <button onclick="switchView('analytics')" id="nav-btn-analytics" class="nav-tab-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-bullseye text-xs"></i> Weakness Radar
+                </button>
+                <button onclick="switchView('mock')" id="nav-btn-mock" class="nav-tab-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-stopwatch text-xs"></i> Mock Exam
+                </button>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-3 bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-xl">
+                    <div class="flex items-center gap-1.5 text-amber-400 text-xs font-bold" title="Daily Study Streak">
+                        <i class="fa-solid fa-fire text-amber-500"></i>
+                        <span id="user-streak-val">12 Days</span>
+                    </div>
+                    <div class="h-3 w-px bg-slate-800"></div>
+                    <div class="flex items-center gap-1.5 text-brand-400 text-xs font-bold" title="Registered Mobile Number">
+                        <i class="fa-solid fa-mobile-screen text-emerald-400"></i>
+                        <span id="user-mobile-val">+91 98765 43210</span>
+                    </div>
+                </div>
+
+                <button onclick="openOnboardingModal()" class="bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs px-3.5 py-2 rounded-xl transition-all shadow-md shadow-brand-600/30 flex items-center gap-1.5">
+                    <i class="fa-solid fa-sliders text-xs"></i>
+                    <span class="hidden sm:inline">Scheme / Profile</span>
+                </button>
+
+                <button onclick="toggleMobileMenu()" class="xl:hidden p-2 text-slate-400 hover:text-white rounded-lg bg-slate-900 border border-slate-800">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div id="mobile-nav-menu" class="hidden xl:hidden bg-slate-900/95 border-b border-slate-800 px-4 py-3 space-y-2 text-sm">
+            <button onclick="switchView('dashboard'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-3">
+                <i class="fa-solid fa-chart-line text-brand-400"></i> Dashboard
+            </button>
+            <button onclick="switchView('vtu-syllabus'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-3">
+                <i class="fa-solid fa-cubes text-indigo-400"></i> VTU 5-Module Syllabus
+            </button>
+            <button onclick="switchView('web-verifier'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-3">
+                <i class="fa-solid fa-globe text-cyan-400"></i> VTU Web Scraper
+            </button>
+            <button onclick="switchView('tutor'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-3">
+                <i class="fa-solid fa-robot text-violet-400"></i> Socratic AI Tutor
+            </button>
+            <button onclick="switchView('quiz'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-3">
+                <i class="fa-solid fa-vial text-emerald-400"></i> Module Quiz Engine
+            </button>
+            <button onclick="switchView('planner'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-3">
+                <i class="fa-solid fa-calendar-days text-amber-400"></i> Automated Planner
+            </button>
+            <button onclick="switchView('sms-logs'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-800 text-rose-300 flex items-center gap-3">
+                <i class="fa-solid fa-tower-cell text-rose-400"></i> Mobile Alerts Log
+            </button>
+            <button onclick="switchView('rag'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-3">
+                <i class="fa-solid fa-file-arrow-up text-cyan-400"></i> RAG Notes Ingestion
+            </button>
+            <button onclick="switchView('analytics'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-3">
+                <i class="fa-solid fa-bullseye text-rose-400"></i> Weakness Radar
+            </button>
+            <button onclick="switchView('mock'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200 flex items-center gap-3">
+                <i class="fa-solid fa-stopwatch text-purple-400"></i> Timed Mock Exam
+            </button>
+        </div>
+    </header>
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- VIEW 1: STUDENT DASHBOARD -->
+        <section id="view-dashboard" class="app-view space-y-6">
+            
+            <!-- Emergency Missed Target Alarm Banner -->
+            <div id="alarm-banner-container" class="glass-panel p-5 rounded-2xl border border-rose-500/50 bg-rose-950/30 alarm-border-active flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-rose-600/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-xl flex-shrink-0 mt-0.5">
+                        <i class="fa-solid fa-triangle-exclamation pulse-active"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-black uppercase tracking-wider text-rose-400">CRITICAL ALERT: AUTOMATED TARGET DEFICIT</span>
+                            <span id="alarm-status-pill" class="px-2 py-0.5 text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-md">SMS DISPATCHED</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white">
+                            You are <span id="alarm-deficit-mins" class="text-rose-400 font-extrabold">115 Mins</span> short of your automatically computed daily study goal (<span id="alarm-target-mins" class="text-white font-bold">220 Mins</span>).
+                        </h3>
+                        <p class="text-xs text-slate-300">
+                            Warning alert dispatched to registered number: <strong id="alarm-target-mobile" class="text-amber-300 font-mono">+91 98765 43210</strong>. Complete required study sessions now to prevent CIE/SEE grade degradation.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 self-start sm:self-center">
+                    <button onclick="triggerStudySession(30)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-emerald-600/30 flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-play text-xs"></i> Start 30m Session
+                    </button>
+                    <button onclick="switchView('sms-logs')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-700 transition-all whitespace-nowrap">
+                        View SMS Log
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hero Welcome Card -->
+            <div class="relative rounded-3xl glass-panel p-6 sm:p-8 border border-slate-800 overflow-hidden">
+                <div class="absolute -top-24 -right-24 w-96 h-96 bg-brand-600/20 blur-[120px] rounded-full pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-semibold">
+                            <i class="fa-solid fa-microchip text-brand-400"></i> Automated Target Algorithm Active
+                        </div>
+                        <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                            Welcome back, <span id="dash-user-name" class="gradient-text">Rahul Sharma</span>
+                        </h1>
+                        <p class="text-slate-300 text-sm max-w-2xl leading-relaxed">
+                            Preparing for <strong id="dash-exam-title" class="text-white">VTU B.E. Computer Science & Engineering (Semester 3)</strong> at <span id="dash-college-name" class="text-brand-300 font-semibold">RV College of Engineering (RVCE)</span>.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="switchView('web-verifier')" class="bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold px-4 py-3 rounded-xl transition-all shadow-lg shadow-cyan-600/30 flex items-center gap-2">
+                            <i class="fa-solid fa-rotate text-xs"></i> Sync Portal Data
+                        </button>
+                        <button onclick="switchView('tutor')" class="bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold px-4 py-3 rounded-xl transition-all shadow-lg shadow-brand-600/30 flex items-center gap-2">
+                            <i class="fa-solid fa-robot"></i> Socratic AI Tutor
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core Metric Widgets Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <div class="glass-panel p-5 rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-slate-900 to-indigo-950/30 space-y-2">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-300">Automated Daily Goal</span>
+                        <i class="fa-solid fa-calculator text-indigo-400"></i>
+                    </div>
+                    <div class="text-2xl font-black text-white" id="metric-auto-target-display">220 Mins</div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div id="metric-auto-target-bar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: 48%;"></div>
+                    </div>
+                    <span id="metric-auto-target-breakdown" class="text-[11px] text-slate-300 block font-medium">Computed based on 34 days & 2 weak modules</span>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800/80 space-y-2">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="text-xs font-bold uppercase tracking-wider">Today's Completed Time</span>
+                        <i class="fa-solid fa-stopwatch text-emerald-400"></i>
+                    </div>
+                    <div class="text-2xl font-black text-white"><span id="metric-study-time">105</span> <span class="text-xs text-slate-400 font-normal">/ <span id="metric-study-target-sub">220</span> mins</span></div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div id="metric-study-time-bar" class="bg-emerald-500 h-full rounded-full" style="width: 48%;"></div>
+                    </div>
+                    <span id="metric-time-remaining-sub" class="text-[11px] text-rose-400 font-bold">115 Mins Short (SMS Alert Triggered)</span>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800/80 space-y-2">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="text-xs font-bold uppercase tracking-wider">CIE / SEE Readiness</span>
+                        <i class="fa-solid fa-chart-line text-emerald-400"></i>
+                    </div>
+                    <div class="text-2xl font-black text-white" id="metric-readiness">78%</div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 78%;"></div>
+                    </div>
+                    <span class="text-[11px] text-slate-400">Targeting 45+/50 in Internal CIEs</span>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800/80 space-y-2">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="text-xs font-bold uppercase tracking-wider">Low-Scoring Modules</span>
+                        <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+                    </div>
+                    <div class="text-2xl font-black text-white" id="metric-weak-modules">2 Modules</div>
+                    <p class="text-[11px] text-rose-400 font-medium">Auto-scaling study duration +40 mins</p>
+                </div>
+            </div>
+
+            <!-- Workspace Layout: Tasks & Mobile Info -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-l-brand-500 border-slate-800 bg-gradient-to-r from-brand-950/30 to-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center text-xl flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-bullseye"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-brand-400 uppercase tracking-wider">Automated Action Plan for VTU CIE</span>
+                                <h3 class="text-base font-bold text-white" id="dash-action-title">Solve 10-Mark Numerical on Fourier Series (Module 2 • 21MAT31)</h3>
+                                <p class="text-xs text-slate-400">Your score in Module 2 Fourier Transform derivations dropped below 55% during last week's quiz.</p>
+                            </div>
+                        </div>
+                        <button onclick="launchTargetedAction()" class="self-start sm:self-center bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all whitespace-nowrap flex items-center gap-2">
+                            <span>Execute Task</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-indigo-400"></i>
+                                <h3 class="text-base font-bold text-white">Automated Daily Work Schedule</h3>
+                            </div>
+                            <button onclick="switchView('planner')" class="text-xs text-brand-400 hover:underline">View Algorithm Breakdown</button>
+                        </div>
+
+                        <div id="dash-schedule-list" class="space-y-3">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">SMS Emergency Notification</span>
+                            <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                            </div>
+                            <div>
+                                <h4 id="dash-registered-mobile" class="font-bold text-white text-sm font-mono">+91 98765 43210</h4>
+                                <p class="text-xs text-slate-400">Auto SMS active for missed study goals</p>
+                            </div>
+                        </div>
+                        <button onclick="switchView('sms-logs')" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-brand-400"></i> Inspect SMS Dispatch Log
+                        </button>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved text-rose-400"></i> Low Mastery Modules
+                            </h3>
+                            <button onclick="switchView('analytics')" class="text-xs text-slate-400 hover:text-white">View Radar</button>
+                        </div>
+
+                        <div id="dash-weakness-list" class="space-y-3">
+                            <!-- Dynamic Content -->
+                        </div>
+
+                        <button onclick="switchView('analytics')" class="w-full py-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl text-xs font-bold transition-all text-center">
+                            Launch Targeted Weakness Drill
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- VIEW 2: REGISTERED MOBILE ALARM & SMS LOG VIEWER -->
+        <section id="view-sms-logs" class="app-view space-y-6 hidden">
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <div class="inline-flex items-center gap-2 text-xs font-bold text-rose-400 uppercase tracking-wider">
+                            <i class="fa-solid fa-tower-cell"></i> Automated Emergency Alert System
+                        </div>
+                        <h2 class="text-2xl font-extrabold text-white mt-1">SMS & WhatsApp Dispatch Logs</h2>
+                        <p class="text-xs text-slate-400 mt-1">Real-time alert engine dispatches warnings when daily study timers fall behind automatically calculated goals.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button onclick="triggerTestSmsDispatch()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-rose-600/30 flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                            <span>Test Dispatch SMS Now</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center font-bold text-xl">
+                            <i class="fa-solid fa-phone-volume"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 uppercase">Registered Mobile Recipient</span>
+                            <h3 id="sms-log-mobile-display" class="text-lg font-bold font-mono text-white">+91 98765 43210</h3>
+                            <p class="text-xs text-slate-400">Format: Standard Indian Cellular GSM Network (+91)</p>
+                        </div>
+                    </div>
+
+                    <button onclick="openOnboardingModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2 rounded-xl border border-slate-700">
+                        Edit Registered Number
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-brand-400"></i> Dispatch History & Delivery Status
+                    </h3>
+
+                    <div id="sms-log-history-list" class="space-y-3">
+                        <!-- Dynamic Content -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: OFFICIAL VTU WEB DATA SCRAPER & VERIFIER -->
+        <section id="view-web-verifier" class="app-view space-y-6 hidden">
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <div class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 uppercase tracking-wider">
+                            <i class="fa-solid fa-globe"></i> Live Web Scraping Engine
+                        </div>
+                        <h2 class="text-2xl font-extrabold text-white mt-1">Official VTU & Autonomous Portal Scraper</h2>
+                        <p class="text-xs text-slate-400 mt-1">Fetches live scheme metadata, official subject codes, and textbook references directly from <code class="text-cyan-300">vtu.ac.in</code>.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button onclick="executeOfficialWebScrape()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-cyan-600/30 flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-down text-xs"></i>
+                            <span>Scrape & Sync Official Portal</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-4">
+                    <label class="block text-xs font-bold uppercase text-slate-300">Official Portal URL Inspector</label>
+                    <div class="flex flex-col sm:flex-row items-center gap-2">
+                        <input id="scraper-target-url" type="text" value="https://vtu.ac.in/b-e-scheme-syllabus/2022-scheme-cse" class="flex-1 w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-500">
+                        <button onclick="executeOfficialWebScrape()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-700 whitespace-nowrap">
+                            Inspect URL
+                        </button>
+                    </div>
+                </div>
+
+                <div id="verified-portal-data-card" class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-400"></i> Verified Official Scheme Metadata
+                        </h3>
+                        <span id="live-sync-timestamp" class="text-[10px] text-slate-400 font-mono">Last Verified: Just Now</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                            <span class="text-slate-500 font-semibold block">Official Subject Code</span>
+                            <span class="text-sm font-bold font-mono text-brand-400" id="verify-code">22CS32 / 21CS32</span>
+                        </div>
+                        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                            <span class="text-slate-500 font-semibold block">CIE / SEE Credit Allocation</span>
+                            <span class="text-sm font-bold text-emerald-400" id="verify-marks">CIE: 50 | SEE: 50 (4 Credits)</span>
+                        </div>
+                        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                            <span class="text-slate-500 font-semibold block">Official Prescribed Textbook</span>
+                            <span class="text-xs font-bold text-slate-200 truncate block" id="verify-textbook">Horowitz, Sahni & Anderson</span>
+                        </div>
+                        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                            <span class="text-slate-500 font-semibold block">Exam Question Pattern</span>
+                            <span class="text-xs font-bold text-amber-400" id="verify-pattern">5 Modules • 10 Questions Total</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-300 space-y-2">
+                        <span class="text-cyan-400 font-bold block flex items-center gap-2">
+                            <i class="fa-solid fa-file-pdf"></i> VTU Official Syllabus Blown-Up Outcome:
+                        </span>
+                        <p id="verify-summary-text" class="leading-relaxed text-slate-400">
+                            Verified against official VTU circular reference. Subject 22CS32 mandates 5 modules with equal 20-mark evaluation weightage in Semester End Exams. Lab component includes 12 C programming experiments with dynamic memory allocation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: VTU / AUTONOMOUS 5-MODULE SYLLABUS NAVIGATOR -->
+        <section id="view-vtu-syllabus" class="app-view space-y-6 hidden">
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <div class="inline-flex items-center gap-2 text-xs font-bold text-brand-400 uppercase tracking-wider">
+                            <i class="fa-solid fa-cubes"></i> 5-Module Subject Structure
+                        </div>
+                        <h2 class="text-2xl font-extrabold text-white mt-1">VTU / Autonomous Course Modules</h2>
+                        <p class="text-xs text-slate-400 mt-1">Explore subject codes, credit breakdowns, and module completion status.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <label class="text-xs text-slate-400 font-semibold whitespace-nowrap">Subject:</label>
+                        <select id="vtu-subject-selector" onchange="changeActiveVtuSubject(this.value)" class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <!-- Dynamic Options -->
+                        </select>
+                    </div>
+                </div>
+
+                <div id="vtu-subject-header-card" class="glass-card p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-900 to-brand-950/20">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center font-bold text-lg">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                        </div>
+                        <div>
+                            <span id="active-subj-code" class="text-xs font-mono font-bold text-brand-400">22CS32 / 21CS32</span>
+                            <h3 id="active-subj-title" class="text-lg font-bold text-white">Data Structures and Applications</h3>
+                            <p id="active-subj-meta" class="text-xs text-slate-400">VTU 2022 Scheme • 4 Credits • CIE Marks: 50 | SEE Marks: 50</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="text-right">
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Syllabus Covered</span>
+                            <span id="active-subj-progress-num" class="text-lg font-bold text-emerald-400">60%</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-full border-4 border-emerald-500/30 border-t-emerald-500 flex items-center justify-center text-xs font-bold text-emerald-400">
+                            3/5
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-indigo-400"></i> 5-Module Syllabus Breakdown
+                    </h3>
+                    <div id="vtu-modules-accordion-container" class="space-y-4">
+                        <!-- Dynamic Content -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 5: SOCRATIC AI TUTOR CHAT STUDIO -->
+        <section id="view-tutor" class="app-view space-y-6 hidden">
+            <div class="glass-panel rounded-3xl border border-slate-800 overflow-hidden flex flex-col h-[78vh]">
+                <div class="bg-slate-900/90 border-b border-slate-800 p-4 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-robot text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                Socratic AI Tutor
+                                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-normal">Grounded in VTU Scheme</span>
+                            </h3>
+                            <p class="text-xs text-slate-400" id="tutor-context-sub">Active Subject: 22CS32 Data Structures & Applications (Modules 1-5)</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs text-slate-400 font-semibold mr-1">Explanation Style:</span>
+                        <select id="tutor-mode-select" class="bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-1.5 focus:outline-none focus:border-brand-500">
+                            <option value="vtu_exam">VTU CIE/SEE Exam-Focused (10-Mark Format)</option>
+                            <option value="socratic">Socratic (Guiding Questions)</option>
+                            <option value="concept">Beginner Concept Explanation</option>
+                            <option value="derivation">Step-by-Step Mathematical Derivation</option>
+                            <option value="code_c">C / C++ Code & Algorithmic Trace</option>
+                        </select>
+
+                        <button onclick="clearTutorChat()" class="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded-lg border border-slate-800 hover:bg-slate-800 transition-all">
+                            <i class="fa-solid fa-rotate-right"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tutor-chat-box" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600/20 text-brand-400 border border-brand-500/30 flex-shrink-0 flex items-center justify-center text-xs font-bold mt-1">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div class="glass-card p-4 rounded-2xl rounded-tl-none border border-slate-800 text-sm text-slate-200 max-w-[85%] space-y-2">
+                            <p>Hello! I am your <strong>CogniPrep Socratic AI Tutor</strong>, customized for VTU 2022/2025 CBCS and Autonomous college schemes.</p>
+                            <p class="text-xs text-slate-300">I can break down 5-module topics, provide expected 10-mark/20-mark VTU exam solutions, and explain derivations step-by-step with citations from official prescribed textbooks.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-4 py-2 bg-slate-950/60 border-t border-slate-800/60 flex items-center gap-2 overflow-x-auto text-xs">
+                    <span class="text-slate-500 flex-shrink-0 font-medium">VTU Presets:</span>
+                    <button onclick="insertTutorPrompt('Explain Module 1 Stack implementation in C with expected 10-mark VTU question')" class="flex-shrink-0 bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1 rounded-lg border border-slate-800 transition-colors">
+                        Stack C Code (10-Mark)
+                    </button>
+                    <button onclick="insertTutorPrompt('Derive Fourier Transform for VTU 21MAT31 Module 2 with step-by-step integrals')" class="flex-shrink-0 bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1 rounded-lg border border-slate-800 transition-colors">
+                        Fourier Derivation (MAT31)
+                    </button>
+                    <button onclick="insertTutorPrompt('Explain Dijkstra Algorithm with working example for Module 4 Graphs')" class="flex-shrink-0 bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1 rounded-lg border border-slate-800 transition-colors">
+                        Dijkstra's Trace
+                    </button>
+                </div>
+
+                <form onsubmit="handleTutorSubmit(event)" class="p-3 bg-slate-900 border-t border-slate-800 flex items-center gap-2">
+                    <input id="tutor-user-input" type="text" placeholder="Ask any VTU/Autonomous module concept, code, or derivation..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-5 py-3 rounded-xl transition-all shadow-md shadow-brand-600/30 flex items-center gap-2">
+                        <span>Send</span>
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- VIEW 6: AI PRACTICE QUIZ ENGINE -->
+        <section id="view-quiz" class="app-view space-y-6 hidden">
+            <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-vial text-emerald-400"></i> AI Practice Quiz & VTU Question Engine
+                        </h2>
+                        <p class="text-xs text-slate-400">Configure practice tests filtered by specific 5-module topics.</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="quiz-module-filter" class="bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <option value="ALL">All Modules (Comprehensive)</option>
+                            <option value="1">Module 1 (Stacks & Queues)</option>
+                            <option value="2">Module 2 (Linked Lists)</option>
+                            <option value="3">Module 3 (Trees & Heaps)</option>
+                            <option value="4">Module 4 (Graphs)</option>
+                            <option value="5">Module 5 (Hashing & Sorting)</option>
+                        </select>
+
+                        <button onclick="initializeQuizEngine()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-emerald-600/20 whitespace-nowrap">
+                            Generate Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quiz-active-card" class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <span id="quiz-progress-text" class="text-xs font-bold text-brand-400 uppercase tracking-wider">QUESTION 1 OF 2</span>
+                    <div class="flex items-center gap-2 text-xs text-slate-400">
+                        <i class="fa-regular fa-clock text-amber-400"></i>
+                        <span>Time Spent: <strong id="quiz-timer-display" class="font-mono text-white">00:32</strong></span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <span id="quiz-topic-badge" class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-brand-500/10 text-brand-400 border border-brand-500/20 rounded-md">
+                        22CS32 • Module 1 Stacks & Queues
+                    </span>
+                    <h3 id="quiz-stem-text" class="text-base sm:text-lg font-semibold text-white leading-relaxed">
+                        In VTU Data Structures lab experiments, which data structure is used to convert an Infix expression into Postfix notation?
+                    </h3>
+                </div>
+
+                <div id="quiz-options-grid" class="space-y-3">
+                    <!-- Options populated dynamically -->
+                </div>
+
+                <div id="quiz-explanation-card" class="hidden glass-card p-5 rounded-2xl border border-indigo-500/30 bg-indigo-950/20 space-y-2">
+                    <div class="flex items-center gap-2 font-bold text-indigo-300 text-xs">
+                        <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                        <span>VTU Model Answer & Algorithm Explanation</span>
+                    </div>
+                    <p id="quiz-explanation-body" class="text-xs text-slate-300 leading-relaxed">
+                        Explanation details.
+                    </p>
+                </div>
+
+                <div class="flex items-center justify-between pt-4 border-t border-slate-800">
+                    <span id="quiz-score-live" class="text-xs text-slate-400">Score: <strong class="text-white">0 / 0</strong></span>
+                    <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                        <span>Next Question</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 7: ADAPTIVE AI STUDY PLANNER -->
+        <section id="view-planner" class="app-view space-y-6 hidden">
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-amber-400"></i> Algorithmic Daily Study Target Engine
+                        </h2>
+                        <p class="text-xs text-slate-400">No manual target inputs. Daily targets are automatically computed using exam date countdowns and mastery deficits.</p>
+                    </div>
+
+                    <button onclick="recalculatePlan()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-rotate text-brand-400"></i> Recalculate Algorithm Math
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">VTU SEE Exam Date</span>
+                        <div class="text-lg font-extrabold text-white mt-1" id="planner-exam-date-display">Nov 15, 2026</div>
+                        <span class="text-[11px] text-indigo-400 font-medium" id="planner-days-countdown">34 Days Remaining</span>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Automated Daily Allocation</span>
+                        <div class="text-lg font-extrabold text-white mt-1" id="planner-auto-target-math">220 Minutes / Day</div>
+                        <span class="text-[11px] text-emerald-400 font-medium">Computed algorithmically</span>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Priority Module Task</span>
+                        <div class="text-lg font-extrabold text-rose-400 mt-1 truncate" id="planner-priority-topic">21MAT31 Fourier Series (Module 2)</div>
+                        <span class="text-[11px] text-slate-400">Prioritized from last week's quiz</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 8: RAG NOTES & DOCUMENT INGESTION -->
+        <section id="view-rag" class="app-view space-y-6 hidden">
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-file-arrow-up text-cyan-400"></i> Document Ingestion & VTU PYQ Summarizer
+                    </h2>
+                    <p class="text-xs text-slate-400">Upload college lecture notes, syllabus PDFs, or VTU Previous Year Question Papers (PYQs) for AI extraction.</p>
+                </div>
+
+                <div onclick="triggerFileInput()" class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-3xl p-8 text-center cursor-pointer bg-slate-900/40 hover:bg-slate-900/80 transition-all space-y-3">
+                    <input type="file" id="file-input-element" class="hidden" multiple accept=".pdf,.txt,.doc,.docx">
+                    <div class="w-16 h-16 mx-auto rounded-2xl bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">Click or drag VTU syllabus PDFs or handwritten class notes here</h4>
+                        <p class="text-xs text-slate-400 mt-1">Supports PDF, TXT, DOCX (Max 15MB per file)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 9: WEAKNESS RADAR & FLASHCARDS -->
+        <section id="view-analytics" class="app-view space-y-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-radar text-brand-400"></i> 5-Module Mastery Radar
+                        </h2>
+                        <p class="text-xs text-slate-400">Visualizing accuracy across Modules 1 through 5.</p>
+                    </div>
+                    <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
+                        <canvas id="masteryRadarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-violet-400"></i> SM-2 Spaced Repetition Cards
+                            </h2>
+                            <p class="text-xs text-slate-400">Click card to reveal formula or definition, then rate difficulty.</p>
+                        </div>
+                    </div>
+
+                    <div class="perspective-1000 min-h-[220px]">
+                        <div id="flashcard-card-inner" onclick="flipFlashcard()" class="transform-style-3d transition-transform duration-500 cursor-pointer w-full h-full glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between items-center text-center">
+                            <div id="flashcard-front" class="space-y-3 my-auto">
+                                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">VTU Module Formula</span>
+                                <h3 id="flashcard-front-text" class="text-base sm:text-lg font-bold text-white">
+                                    What is the Euler Formula for Fourier Series in VTU 21MAT31 Module 2 over interval (0, 2π)?
+                                </h3>
+                                <p class="text-[11px] text-brand-400">Click to flip card <i class="fa-solid fa-rotate"></i></p>
+                            </div>
+
+                            <div id="flashcard-back" class="space-y-3 my-auto hidden rotate-y-180">
+                                <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">Formula Answer</span>
+                                <p id="flashcard-back-text" class="text-sm text-slate-200">
+                                    f(x) = (a0/2) + Σ [an cos(nx) + bn sin(nx)]
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pt-2">
+                        <button onclick="rateFlashcard('HARD')" class="py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition-all">Hard</button>
+                        <button onclick="rateFlashcard('GOOD')" class="py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold transition-all">Good</button>
+                        <button onclick="rateFlashcard('EASY')" class="py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-bold transition-all">Easy</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 10: TIMED MOCK EXAM -->
+        <section id="view-mock" class="app-view space-y-6 hidden">
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-400">VTU CIE / SEE Timed Exam Pattern</span>
+                        <h2 class="text-xl font-bold text-white mt-0.5" id="mock-exam-title">VTU 22CS32 Data Structures Full Length SEE Mock 1</h2>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl text-center">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold block">Time Remaining</span>
+                            <span id="mock-timer-clock" class="text-lg font-mono font-bold text-rose-400">45:00</span>
+                        </div>
+                        <button onclick="submitMockExam()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-5 py-3 rounded-xl transition-all shadow-lg shadow-rose-600/20">
+                            Submit Exam
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="onboarding-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
+        <div class="glass-panel max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeOnboardingModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div>
+                <span class="text-xs font-bold text-brand-400 uppercase tracking-wider">Academic Configuration</span>
+                <h3 class="text-xl font-bold text-white mt-0.5">Select Scheme, College & Mobile Number</h3>
+            </div>
+
+            <form onsubmit="saveProfileOnboarding(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Student Name</label>
+                        <input id="modal-user-name" type="text" required value="Rahul Sharma" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-rose-300 mb-1">Registered Mobile (+91 GSM)</label>
+                        <input id="modal-user-mobile" type="tel" required value="+91 98765 43210" placeholder="+91 XXXXX XXXXX" class="w-full bg-slate-900 border border-rose-500/40 rounded-xl px-4 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-rose-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-300 mb-1">University / Board Scheme</label>
+                        <select id="modal-scheme-select" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <option value="VTU_2022">VTU 2022 CBCS Scheme (5-Module Pattern)</option>
+                            <option value="VTU_2025">VTU 2025 CBCS Scheme (Revised Outcome Based)</option>
+                            <option value="AUTONOMOUS">Autonomous College (RVCE, BMSCE, MSRIT, PESU, BMSIT)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-300 mb-1">College Name</label>
+                        <input id="modal-college-name" type="text" value="RV College of Engineering (RVCE)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Engineering Branch</label>
+                        <select id="modal-branch-select" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <option value="CSE">Computer Science & Engineering (CSE)</option>
+                            <option value="AIDS">AI & Data Science (AI & DS)</option>
+                            <option value="ECE">Electronics & Communication (ECE)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Semester</label>
+                        <select id="modal-sem-select" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <option value="3" selected>Semester 3 (Core Discipline)</option>
+                            <option value="4">Semester 4 (Core Discipline)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Target VTU SEE Exam Date</label>
+                    <input id="modal-exam-date" type="date" required value="2026-11-15" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-brand-600/30">
+                    Save Scheme & Start Automated Preparation
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /* PRE-LOADED VTU 5-MODULE SUBJECT DATASTORE */
+        const VTU_SUBJECT_DATA = {
+            CSE: [
+                {
+                    code: "22CS32 / 21CS32",
+                    title: "Data Structures and Applications",
+                    credits: 4,
+                    cie: 50,
+                    see: 50,
+                    textbook: "Ellis Horowitz, Sartaj Sahni, Susan Anderson-Freed",
+                    modules: [
+                        { num: 1, title: "Module 1: Stacks & Dynamic Memory", topics: ["Stack Operations & C Arrays", "Infix to Postfix Conversion", "Recursion & Tower of Hanoi"], accuracy: 82, done: true },
+                        { num: 2, title: "Module 2: Queues & Linked Lists", topics: ["Circular Queues & Priority Queues", "Singly & Doubly Linked Lists", "Header Nodes & Applications"], accuracy: 70, done: true },
+                        { num: 3, title: "Module 3: Trees & Heaps", topics: ["Binary Search Trees (BST)", "Threaded Binary Trees", "Max/Min Heaps & Expression Trees"], accuracy: 65, done: false },
+                        { num: 4, title: "Module 4: Graphs & Search Algorithms", topics: ["Adjacency Matrix & Lists", "BFS & DFS Traversals", "Dijkstra Shortest Path"], accuracy: 48, done: false },
+                        { num: 5, title: "Module 5: Hashing & Sorting", topics: ["Hash Functions & Collision Resolution", "Open Addressing & Chaining", "Radix Sort & File Structures"], accuracy: 75, done: true }
+                    ]
+                },
+                {
+                    code: "21MAT31 / 22MAT31",
+                    title: "Transform Calculus & Fourier Series",
+                    credits: 3,
+                    cie: 50,
+                    see: 50,
+                    textbook: "Erwin Kreyszig - Advanced Engineering Mathematics",
+                    modules: [
+                        { num: 1, title: "Module 1: Laplace Transforms", topics: ["Transforms of Elementary Functions", "Periodic Functions", "Inverse Laplace & Convolution"], accuracy: 60, done: true },
+                        { num: 2, title: "Module 2: Fourier Series", topics: ["Euler's Formulas", "Half Range Fourier Series", "Harmonic Analysis"], accuracy: 42, done: false },
+                        { num: 3, title: "Module 3: Fourier Transforms", topics: ["Infinite Fourier Transforms", "Fourier Sine & Cosine Transforms"], accuracy: 55, done: false },
+                        { num: 4, title: "Module 4: Z-Transforms", topics: ["Properties & ROC", "Inverse Z-Transforms", "Difference Equations"], accuracy: 70, done: true },
+                        { num: 5, title: "Module 5: Numerical Methods", topics: ["Runge-Kutta 4th Order", "Milne's Predictor-Corrector"], accuracy: 80, done: true }
+                    ]
+                }
+            ]
+        };
+
+        const DEFAULT_STATE = {
+            profile: {
+                name: "Rahul Sharma",
+                mobile: "+91 98765 43210",
+                college: "RV College of Engineering (RVCE)",
+                scheme: "VTU_2022",
+                branch: "CSE",
+                sem: "3",
+                targetExam: "VTU B.E. Computer Science (Semester 3)",
+                examDate: "2026-11-15",
+                streakDays: 12,
+                readiness: 78,
+                completedTodayMins: 105
+            },
+            plannerTasks: [
+                { id: "t1", title: "Solve 10-Mark Numerical on Fourier Series (Module 2)", duration: "45 mins", completed: false },
+                { id: "t2", title: "Trace Dijkstra Algorithm C Code (Module 4)", duration: "30 mins", completed: true },
+                { id: "t3", title: "SM-2 Flashcard Revision (VTU Formulas)", duration: "20 mins", completed: false }
+            ],
+            smsLogs: [
+                { id: "sms-1", timestamp: "10:30 AM", recipient: "+91 98765 43210", payload: "ALERT [CogniPrep OS]: Hi Rahul, you are currently 115 minutes short of your automated daily VTU study target (220 mins). Complete required modules to maintain CIE/SEE readiness.", status: "DELIVERED" }
+            ]
+        };
+
+        let appState = JSON.parse(localStorage.getItem('cogniprep_vtu_v2_state')) || DEFAULT_STATE;
+
+        function saveState() {
+            localStorage.setItem('cogniprep_vtu_v2_state', JSON.stringify(appState));
+        }
+
+        /* 1. AUTOMATED TARGET CALCULATOR */
+        function calculateAutomatedDailyTarget() {
+            const examDate = new Date(appState.profile.examDate);
+            const today = new Date();
+            const daysLeft = Math.max(1, Math.ceil((examDate - today) / (1000 * 60 * 60 * 24)));
+
+            let totalUncompletedModules = 0;
+            let totalLowMasteryModules = 0;
+
+            const subjects = VTU_SUBJECT_DATA.CSE;
+            subjects.forEach(subj => {
+                subj.modules.forEach(m => {
+                    if (!m.done) totalUncompletedModules++;
+                    if (m.accuracy < 60) totalLowMasteryModules++;
+                });
+            });
+
+            let baseMinutes = 180;
+            if (daysLeft < 30) baseMinutes += 60;
+            if (daysLeft < 15) baseMinutes += 60;
+            baseMinutes += (totalUncompletedModules * 15);
+            baseMinutes += (totalLowMasteryModules * 20);
+
+            return Math.min(420, Math.max(180, baseMinutes));
+        }
+
+        /* 2. SMS ALARM DISPATCHER */
+        function checkAndTriggerSmsAlarm(autoTargetMins) {
+            const completed = appState.profile.completedTodayMins;
+            const deficit = autoTargetMins - completed;
+            const alarmContainer = document.getElementById('alarm-banner-container');
+            
+            if (deficit > 0) {
+                alarmContainer.classList.remove('hidden');
+                document.getElementById('alarm-deficit-mins').innerText = `${deficit} Mins`;
+                document.getElementById('alarm-target-mins').innerText = `${autoTargetMins} Mins`;
+                document.getElementById('alarm-target-mobile').innerText = appState.profile.mobile;
+
+                if (appState.smsLogs.length === 0 || appState.smsLogs[0].timestamp !== new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) {
+                    dispatchAutomatedSms(deficit, autoTargetMins);
+                }
+            } else {
+                alarmContainer.classList.add('hidden');
+            }
+        }
+
+        function dispatchAutomatedSms(deficitMins, targetMins) {
+            const logEntry = {
+                id: `sms-${Date.now()}`,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                recipient: appState.profile.mobile,
+                payload: `ALERT [CogniPrep OS]: Hi ${appState.profile.name}, you are currently ${deficitMins} minutes short of your automated daily VTU study target (${targetMins} mins). Immediate action required to stay on track for CIE/SEE!`,
+                status: "DELIVERED"
+            };
+
+            appState.smsLogs.unshift(logEntry);
+            if (appState.smsLogs.length > 10) appState.smsLogs.pop();
+            saveState();
+            renderSmsLogsView();
+        }
+
+        function triggerTestSmsDispatch() {
+            const autoTarget = calculateAutomatedDailyTarget();
+            const deficit = Math.max(30, autoTarget - appState.profile.completedTodayMins);
+            dispatchAutomatedSms(deficit, autoTarget);
+            showToast(`Test Alert SMS Dispatched to ${appState.profile.mobile}!`, "success");
+        }
+
+        /* VIEW SWITCHER */
+        function switchView(viewId) {
+            document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('view-' + viewId);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-sm');
+                btn.classList.add('text-slate-400');
+            });
+            const activeNav = document.getElementById('nav-btn-' + viewId);
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-400');
+                activeNav.classList.add('bg-brand-600', 'text-white', 'shadow-sm');
+            }
+
+            if (viewId === 'dashboard') renderDashboard();
+            if (viewId === 'sms-logs') renderSmsLogsView();
+            if (viewId === 'vtu-syllabus') renderVtuSyllabusView();
+            if (viewId === 'quiz') initializeQuizEngine();
+            if (viewId === 'analytics') renderAnalyticsView();
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-nav-menu').classList.toggle('hidden');
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl border glass-panel text-xs font-bold text-white shadow-xl transition-all duration-300 transform translate-y-2 flex items-center gap-2`;
+            if (type === 'success') toast.classList.add('border-emerald-500/50', 'bg-emerald-950/80');
+            else toast.classList.add('border-brand-500/50', 'bg-slate-900/90');
+
+            toast.innerHTML = `<i class="fa-solid fa-bell"></i> ${msg}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function executeOfficialWebScrape() {
+            showToast("Connecting to official VTU portal (vtu.ac.in)...");
+            setTimeout(() => {
+                document.getElementById('live-sync-timestamp').innerText = `Last Verified: ${new Date().toLocaleTimeString()}`;
+                showToast("Official VTU Syllabus & Scheme Verified Successfully!", "success");
+            }, 1200);
+        }
+
+        /* RENDER DASHBOARD */
+        function renderDashboard() {
+            document.getElementById('dash-user-name').innerText = appState.profile.name;
+            document.getElementById('dash-college-name').innerText = appState.profile.college;
+            document.getElementById('dash-exam-title').innerText = appState.profile.targetExam;
+            document.getElementById('user-mobile-val').innerText = appState.profile.mobile;
+            document.getElementById('dash-registered-mobile').innerText = appState.profile.mobile;
+
+            const autoTargetMins = calculateAutomatedDailyTarget();
+            const completedMins = appState.profile.completedTodayMins;
+
+            document.getElementById('metric-auto-target-display').innerText = `${autoTargetMins} Mins`;
+            document.getElementById('metric-study-target-sub').innerText = autoTargetMins;
+            document.getElementById('metric-study-time').innerText = completedMins;
+
+            const percentage = Math.min(100, Math.round((completedMins / autoTargetMins) * 100));
+            document.getElementById('metric-auto-target-bar').style.width = `${percentage}%`;
+            document.getElementById('metric-study-time-bar').style.width = `${percentage}%`;
+
+            const remaining = autoTargetMins - completedMins;
+            const subText = document.getElementById('metric-time-remaining-sub');
+            if (remaining > 0) {
+                subText.innerText = `${remaining} Mins Short (SMS Alert Active)`;
+                subText.className = "text-[11px] text-rose-400 font-bold block";
+            } else {
+                subText.innerText = "Daily Target Completed! 🎉";
+                subText.className = "text-[11px] text-emerald-400 font-bold block";
+            }
+
+            checkAndTriggerSmsAlarm(autoTargetMins);
+
+            const scheduleContainer = document.getElementById('dash-schedule-list');
+            scheduleContainer.innerHTML = appState.plannerTasks.map(t => `
+                <div class="p-3.5 glass-card rounded-xl border border-slate-800/80 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTaskDone('${t.id}')" class="w-4 h-4 rounded border-slate-700 text-brand-600 focus:ring-brand-500 bg-slate-900">
+                        <span class="text-xs font-semibold ${t.completed ? 'line-through text-slate-500' : 'text-slate-200'}">${t.title}</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-mono">${t.duration}</span>
+                </div>
+            `).join('');
+
+            const weakContainer = document.getElementById('dash-weakness-list');
+            const subj = VTU_SUBJECT_DATA.CSE[0];
+            const lowModules = subj.modules.filter(m => m.accuracy < 60);
+
+            weakContainer.innerHTML = lowModules.map(m => `
+                <div class="p-3 glass-card rounded-xl border border-slate-800 space-y-1">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-bold text-slate-200">${m.title}</span>
+                        <span class="text-rose-400 font-bold">${m.accuracy}% Acc</span>
+                    </div>
+                    <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-rose-500 h-full rounded-full" style="width: ${m.accuracy}%;"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function triggerStudySession(mins) {
+            appState.profile.completedTodayMins += mins;
+            saveState();
+            renderDashboard();
+            showToast(`Logged ${mins} mins study time! Target updated.`, "success");
+        }
+
+        function toggleTaskDone(id) {
+            const t = appState.plannerTasks.find(x => x.id === id);
+            if (t) {
+                t.completed = !t.completed;
+                saveState();
+                renderDashboard();
+            }
+        }
+
+        function launchTargetedAction() {
+            switchView('quiz');
+            showToast("Loaded Module 2 Fourier Transform Quiz!");
+        }
+
+        function renderSmsLogsView() {
+            document.getElementById('sms-log-mobile-display').innerText = appState.profile.mobile;
+            const container = document.getElementById('sms-log-history-list');
+
+            if (appState.smsLogs.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400">No emergency alerts dispatched yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = appState.smsLogs.map(log => `
+                <div class="glass-card p-4 rounded-xl border border-rose-500/30 bg-rose-950/10 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md font-mono">${log.status}</span>
+                            <span class="text-xs font-mono text-slate-300">${log.recipient}</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-mono">${log.timestamp}</span>
+                    </div>
+                    <p class="text-xs text-slate-200 leading-relaxed font-mono bg-slate-950/80 p-3 rounded-lg border border-slate-800/80">
+                        ${log.payload}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        let activeVtuSubjectIndex = 0;
+        function renderVtuSyllabusView() {
+            const selector = document.getElementById('vtu-subject-selector');
+            const subjects = VTU_SUBJECT_DATA.CSE;
+
+            selector.innerHTML = subjects.map((s, idx) => `
+                <option value="${idx}" ${idx === activeVtuSubjectIndex ? 'selected' : ''}>${s.code} - ${s.title}</option>
+            `).join('');
+
+            const cur = subjects[activeVtuSubjectIndex];
+            document.getElementById('active-subj-code').innerText = cur.code;
+            document.getElementById('active-subj-title').innerText = cur.title;
+            document.getElementById('active-subj-meta').innerText = `${appState.profile.scheme} • ${cur.credits} Credits • CIE: ${cur.cie} | SEE: ${cur.see}`;
+
+            const container = document.getElementById('vtu-modules-accordion-container');
+            container.innerHTML = cur.modules.map(m => `
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" ${m.done ? 'checked' : ''} onchange="toggleModuleDone(${m.num})" class="w-5 h-5 rounded border-slate-700 text-brand-600 focus:ring-brand-500 bg-slate-900">
+                            <div>
+                                <h4 class="text-sm font-bold text-white">${m.title}</h4>
+                                <span class="text-[10px] text-slate-400 font-mono">Accuracy: ${m.accuracy}%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="switchView('tutor')" class="text-xs bg-slate-800 hover:bg-slate-700 text-brand-300 px-3 py-1.5 rounded-lg border border-slate-700 transition-all">Tutor</button>
+                            <button onclick="switchView('quiz')" class="text-xs bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg shadow-sm transition-all">Quiz</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function changeActiveVtuSubject(index) {
+            activeVtuSubjectIndex = parseInt(index);
+            renderVtuSyllabusView();
+        }
+
+        function toggleModuleDone(moduleNum) {
+            const m = VTU_SUBJECT_DATA.CSE[activeVtuSubjectIndex].modules.find(x => x.num === moduleNum);
+            if (m) {
+                m.done = !m.done;
+                renderVtuSyllabusView();
+                renderDashboard();
+                showToast(`Module ${moduleNum} completion updated! Target math recalculated.`);
+            }
+        }
+
+        function insertTutorPrompt(promptText) {
+            document.getElementById('tutor-user-input').value = promptText;
+        }
+
+        function handleTutorSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('tutor-user-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatBox = document.getElementById('tutor-chat-box');
+            chatBox.innerHTML += `
+                <div class="flex items-start gap-3 flex-row-reverse">
+                    <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex-shrink-0 flex items-center justify-center text-xs font-bold mt-1"><i class="fa-solid fa-user"></i></div>
+                    <div class="bg-brand-600 text-white p-4 rounded-2xl text-xs max-w-[85%] leading-relaxed"><p>${msg}</p></div>
+                </div>
+            `;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            setTimeout(() => {
+                chatBox.innerHTML += `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600/20 text-brand-400 border border-brand-500/30 flex-shrink-0 flex items-center justify-center text-xs font-bold mt-1"><i class="fa-solid fa-robot"></i></div>
+                        <div class="glass-card p-4 rounded-2xl text-xs text-slate-200 max-w-[85%] space-y-2 leading-relaxed">
+                            <p>For your VTU CIE/SEE Exam:\n\n1. State core definition.\n2. Write C structure / Integral derivation.\n3. Note VTU evaluation edge cases.</p>
+                        </div>
+                    </div>
+                `;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 600);
+        }
+
+        function clearTutorChat() {
+            document.getElementById('tutor-chat-box').innerHTML = `<p class="text-xs text-slate-400">Chat reset.</p>`;
+        }
+
+        /* QUIZ ENGINE */
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        const SAMPLE_VTU_QUIZ = [
+            {
+                stem: "In VTU Data Structures lab experiments, which data structure is used to convert an Infix expression into Postfix notation?",
+                options: ["Queue", "Stack", "Binary Tree", "Graph"],
+                correctIndex: 1,
+                explanation: "Infix to Postfix conversion uses a Stack for operator precedence."
+            },
+            {
+                stem: "In VTU 21MAT31 Fourier Series, what is the value of Euler coefficient a0 for f(x) = x in the interval (-π, π)?",
+                options: ["π", "0", "π/2", "2π"],
+                correctIndex: 1,
+                explanation: "Since f(x) = x is an odd function over (-π, π), a0 = 0."
+            }
+        ];
+
+        function initializeQuizEngine() {
+            currentQuizIndex = 0;
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const q = SAMPLE_VTU_QUIZ[currentQuizIndex];
+            if (!q) return;
+
+            document.getElementById('quiz-progress-text').innerText = `QUESTION ${currentQuizIndex + 1} OF ${SAMPLE_VTU_QUIZ.length}`;
+            document.getElementById('quiz-stem-text').innerText = q.stem;
+            document.getElementById('quiz-explanation-card').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            const optionsGrid = document.getElementById('quiz-options-grid');
+            optionsGrid.innerHTML = q.options.map((opt, i) => `
+                <button onclick="checkQuizAnswer(this, ${i})" class="quiz-opt-btn w-full text-left p-4 rounded-xl glass-panel border border-slate-800 hover:border-brand-500/50 text-xs text-slate-200 transition-all flex items-center justify-between">
+                    <span>${opt}</span>
+                    <i class="fa-regular fa-circle text-slate-600"></i>
+                </button>
+            `).join('');
+        }
+
+        function checkQuizAnswer(btnEl, selectedIndex) {
+            const q = SAMPLE_VTU_QUIZ[currentQuizIndex];
+            document.querySelectorAll('.quiz-opt-btn').forEach(b => b.disabled = true);
+
+            if (selectedIndex === q.correctIndex) {
+                btnEl.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+                quizScore++;
+                confetti({ particleCount: 30, spread: 50 });
+            } else {
+                btnEl.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-300');
+            }
+
+            document.getElementById('quiz-explanation-card').classList.remove('hidden');
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+            document.getElementById('quiz-score-live').innerHTML = `Score: <strong class="text-emerald-400">${quizScore} / ${SAMPLE_VTU_QUIZ.length}</strong>`;
+        }
+
+        function nextQuizQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < SAMPLE_VTU_QUIZ.length) renderQuizQuestion();
+            else showToast(`Quiz Complete! Score: ${quizScore}/${SAMPLE_VTU_QUIZ.length}`, "success");
+        }
+
+        let isFlipped = false;
+        function flipFlashcard() {
+            isFlipped = !isFlipped;
+            const inner = document.getElementById('flashcard-card-inner');
+            const front = document.getElementById('flashcard-front');
+            const back = document.getElementById('flashcard-back');
+
+            if (isFlipped) {
+                inner.classList.add('rotate-y-180');
+                front.classList.add('hidden');
+                back.classList.remove('hidden');
+            } else {
+                inner.classList.remove('rotate-y-180');
+                front.classList.remove('hidden');
+                back.classList.add('hidden');
+            }
+        }
+
+        function rateFlashcard(rating) {
+            showToast(`Card difficulty rated: ${rating}`);
+            if (isFlipped) flipFlashcard();
+        }
+
+        let radarChartInstance = null;
+        function renderAnalyticsView() {
+            const ctx = document.getElementById('masteryRadarChart').getContext('2d');
+            if (radarChartInstance) radarChartInstance.destroy();
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Module 1 Stacks', 'Module 2 Queues', 'Module 3 Trees', 'Module 4 Graphs', 'Module 5 Hash'],
+                    datasets: [{
+                        label: 'VTU Module Mastery %',
+                        data: [82, 70, 65, 48, 75],
+                        backgroundColor: 'rgba(99, 102, 241, 0.25)',
+                        borderColor: '#6366f1',
+                        pointBackgroundColor: '#818cf8',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function submitMockExam() {
+            showToast("VTU SEE Mock Exam Submitted! Grade prediction generated.", "success");
+        }
+
+        function recalculatePlan() {
+            const mathMins = calculateAutomatedDailyTarget();
+            document.getElementById('planner-auto-target-math').innerText = `${mathMins} Minutes / Day`;
+            showToast("Automated Target Algorithm Math Recalculated!", "success");
+        }
+
+        function openOnboardingModal() {
+            document.getElementById('onboarding-modal').classList.remove('hidden');
+        }
+
+        function closeOnboardingModal() {
+            document.getElementById('onboarding-modal').classList.add('hidden');
+        }
+
+        function saveProfileOnboarding(e) {
+            e.preventDefault();
+            appState.profile.name = document.getElementById('modal-user-name').value;
+            appState.profile.mobile = document.getElementById('modal-user-mobile').value;
+            appState.profile.college = document.getElementById('modal-college-name').value;
+            appState.profile.scheme = document.getElementById('modal-scheme-select').value;
+            appState.profile.branch = document.getElementById('modal-branch-select').value;
+            appState.profile.sem = document.getElementById('modal-sem-select').value;
+            appState.profile.examDate = document.getElementById('modal-exam-date').value;
+            appState.profile.targetExam = `${appState.profile.scheme.replace('_', ' ')} ${appState.profile.branch} (Sem ${appState.profile.sem})`;
+            saveState();
+            closeOnboardingModal();
+            renderDashboard();
+            showToast("Saved scheme & mobile number! Target recalculated.", "success");
+        }
+
+        function triggerFileInput() {
+            document.getElementById('file-input-element').click();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderDashboard();
+            renderVtuSyllabusView();
+        });
+    </script>
+</body>
+</html>
